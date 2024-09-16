@@ -6,6 +6,8 @@
 #include "threads.h"
 
 
+#define MAINSTACKSIZE 4096
+
 typedef enum {
 	ThreadYield = 1,
 	ThreadExit
@@ -88,16 +90,24 @@ static void threadfree(Thread *t)
 	free(t);
 }
 
-int main(void)
+static void mainrunner(void *argp)
 {
-	threadcreate(threadmain, 0, 4096);
+	int argc = 0;
+	char **argv = argp;
+	while (argv[argc])
+		argc += 1;
+	threadmain(argc, argv);
+}
+
+int main(int, char **argv)
+{
+	threadcreate(mainrunner, argv, MAINSTACKSIZE);
 	for (;;) {
 		Status s = save(&mainst);
-		if (s == ThreadExit) {
+		if (s == ThreadExit)
 			threadfree(current);
-		} else if (s == ThreadYield) {
+		else if (s == ThreadYield)
 			qpush(&runqueue, current);
-		}
 		current = qpop(&runqueue);
 		if (!current)
 			break;

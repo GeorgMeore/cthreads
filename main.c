@@ -3,16 +3,18 @@
 
 #define STACKSIZE 16384
 
-void printer(void *msg)
+void printer(void *argp)
 {
+	char *msg = argp;
 	for (;;) {
 		printf("%s\n", msg);
 		yield();
 	}
 }
 
-void threadmain(void *)
+void threadmain(int argc, char **)
 {
+	printf("argc = %d\n", argc);
 	threadcreate(printer, "foo", STACKSIZE);
 	threadcreate(printer, "bar", STACKSIZE);
 }
