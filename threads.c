@@ -9,9 +9,9 @@
 #define MAINSTACKSIZE 4096
 
 typedef enum {
-	ThreadYield = 1,
+	ThreadYield=1,
 	ThreadExit
-} Status;
+} Tevent;
 
 typedef struct Thread Thread;
 
@@ -90,23 +90,26 @@ static void threadfree(Thread *t)
 	free(t);
 }
 
+typedef struct {
+	int argc;
+	char **argv;
+} Argv;
+
 static void mainrunner(void *argp)
 {
-	int argc = 0;
-	char **argv = argp;
-	while (argv[argc])
-		argc += 1;
-	threadmain(argc, argv);
+	Argv *args = argp;
+	threadmain(args->argc, args->argv);
 }
 
-int main(int, char **argv)
+int main(int argc, char **argv)
 {
-	threadcreate(mainrunner, argv, MAINSTACKSIZE);
+	Argv args = {argc, argv};
+	threadcreate(mainrunner, &args, MAINSTACKSIZE);
 	for (;;) {
-		Status s = save(&mainst);
-		if (s == ThreadExit)
+		Tevent e = save(&mainst);
+		if (e == ThreadExit)
 			threadfree(current);
-		else if (s == ThreadYield)
+		else if (e == ThreadYield)
 			qpush(&runqueue, current);
 		current = qpop(&runqueue);
 		if (!current)
