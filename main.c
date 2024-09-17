@@ -1,20 +1,20 @@
 #include <stdio.h>
 #include "threads.h"
 
-#define STACKSIZE 16384
+#define STACKSIZE 4096
 
 void printer(void *argp)
 {
 	char *msg = argp;
-	for (;;) {
+	int i;
+	for (i = 0; i < 10; i++) {
 		printf("%s\n", msg);
 		yield();
 	}
 }
 
-void threadmain(int argc, char **)
+void threadmain(int, char **)
 {
-	printf("argc = %d\n", argc);
 	threadcreate(printer, "foo", STACKSIZE);
 	threadcreate(printer, "bar", STACKSIZE);
 }
