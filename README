@@ -1,0 +1,9 @@
+Protothreads are an extremely limited form of multitasking.
+They are stackless, and that means that they can't have local variables in the traditional sense.
+Essentially a protothread's state is just the value of the instruction pointer.
+
+This particular implementation (essentially the same as https://dunkels.com/adam/pt/)
+is also extremely hacky and has it's limitations (like, for example, that you cannot
+YIELD inside switch statements, or use it multiple times on one line).
+
+Actually I believe that a setjmp/longjmp approach would lead to a more robust solution.
